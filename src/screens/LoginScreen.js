@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const LoginScreen = ({ navigation }) => {
   const handleRoleSelection = (role) => {
-    if (role === 'TCEian') {
+    if (role === 'Student/Faculty') {
       navigation.navigate('StudentOrFacultyScreen', { role });
     } else {
       navigation.navigate('ParentOrVisitorScreen', { role });
@@ -13,8 +13,8 @@ const LoginScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Who are you?</Text>
-      <TouchableOpacity style={styles.button} onPress={() => handleRoleSelection('TCEian')}>
-        <Text style={styles.buttonText}>TCEian</Text>
+      <TouchableOpacity style={styles.button} onPress={() => handleRoleSelection('Student/Faculty')}>
+        <Text style={styles.buttonText}>Student/Faculty</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={() => handleRoleSelection('parent')}>
         <Text style={styles.buttonText}>Parent</Text>
