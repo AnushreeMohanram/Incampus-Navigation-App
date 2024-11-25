@@ -27,13 +27,44 @@ const campusLocations = [
     latitude: 9.883353073355941, 
     longitude: 78.08324716419759,
     image: require('../../assets/foodcourt.jpeg'), 
-    hours: '10am - 10pm',
+    description: 'Food court with various cuisines',
+    hours: '9am - 5pm',
+  },
+  { 
+    id: 7, 
+    name: 'T S Srinivasan Centre', 
+    latitude: 9.882756, 
+    longitude: 78.08324716419759,
+    image: require('../../assets/centre.jpg'), 
+    description: 'Research foundation',
+    hours: '9am - 5pm',
+  },
+  { 
+    id: 8, 
+    name: 'TCE Ground', 
+    latitude: 9.883993744748045, 
+    longitude:  78.08150340208562,
+    image: require('../../assets/ground.png'), 
+    description: 'Spacious outdoor main ground',
+    hours: '6am - 8pm',
   },
 ];
 
 const LocationDetailsScreen = ({ route }) => {
-  const { locationId } = route.params;  // Retrieve the locationId passed through the route
-  const location = campusLocations.find(loc => loc.id === locationId);  // Find the location based on the passed ID
+  // Retrieve the locationId passed through the route
+  const { locationId } = route.params;
+
+  // Find the location based on the passed ID
+  const location = campusLocations.find(loc => loc.id === locationId);
+
+  // Check if the location was found
+  if (!location) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Location not found!</Text>
+      </View>
+    );
+  }
 
   const openMap = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}`;
@@ -52,7 +83,7 @@ const LocationDetailsScreen = ({ route }) => {
               {
                 text: "Open",
                 onPress: () => {
-                  Linking.openURL(url).catch((err) =>
+                  Linking.openURL(url).catch(() =>
                     Alert.alert("Error", "Failed to open the map.")
                   );
                 },
@@ -61,16 +92,20 @@ const LocationDetailsScreen = ({ route }) => {
           );
         }
       })
-      .catch((err) => Alert.alert("Error", "An unexpected error occurred."));
+      .catch(() => Alert.alert("Error", "An unexpected error occurred."));
   };
 
   return (
     <View style={styles.container}>
       {/* Display the location image */}
-      <Image 
-        source={location.image}
-        style={styles.locationImage}
-      />
+      {location.image ? (
+        <Image 
+          source={location.image}
+          style={styles.locationImage}
+        />
+      ) : (
+        <Text style={styles.errorText}>No image available</Text>
+      )}
       <Text style={styles.title}>{location.name}</Text>
       <Text style={styles.details}>Description: {location.description}</Text>
       <Text style={styles.details}>Operating Hours: {location.hours}</Text>
@@ -106,6 +141,10 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 10,
     marginBottom: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    color: 'red',
   },
 });
 

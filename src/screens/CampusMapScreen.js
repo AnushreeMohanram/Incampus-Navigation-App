@@ -1,91 +1,154 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, Text, StyleSheet, Dimensions, Keyboard, Image } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import { View, TextInput, StyleSheet } from 'react-native';
+import MapView, { Marker, Callout } from 'react-native-maps';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
+import { Text } from 'react-native';
 
-// Sample data for campus and nearby locations
-const campusLocations = [
-  { id: 1, name: 'Main Building', latitude: 9.882909126295969, longitude: 78.08251234664523 },
-  { id: 2, name: 'Library', latitude: 9.882744070560484, longitude: 78.0812433648733 },
-  { id: 3, name: 'Food Court', latitude: 9.883353073355941, longitude: 78.08324716419759 },
-  // Add more locations as needed
-];
-
-const nearbyLocations = [
-  { id: 1, name: 'Computer Lab', latitude: 9.883109, longitude: 78.083105 },
-  { id: 2, name: 'Parking Area', latitude: 9.882700, longitude: 78.083850 },
-  { id: 3, name: 'Auditorium', latitude: 9.883400, longitude: 78.084200 },
-  // Add more nearby locations as needed
-];
-
-// Function to calculate distance between two locations (in meters)
 const getDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371e3; // Earth radius in meters
+  const R = 6371e3; // Earth's radius in meters
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
   const Δφ = ((lat2 - lat1) * Math.PI) / 180;
   const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
   const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    Math.sin(Δφ / 2) ** 2 +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c; // Distance in meters
 };
 
-const CampusMapScreen = ({ navigation }) => {
+const CampusMapScreen = () => {
+  const route = useRoute();
+  const navigation = useNavigation();
+
   const [location, setLocation] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [searchedLocation, setSearchedLocation] = useState(null);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [showNearby, setShowNearby] = useState(false);
+  const [nearbyMarkers, setNearbyMarkers] = useState([]);
+  const [filteredLocations, setFilteredLocations] = useState([]);
+  const [isSearchPerformed, setIsSearchPerformed] = useState(false); // Track if search has been performed
 
+  // Extract params from route if available
+  const { searchQuery = '', filterType = '' } = route.params || {}; // Default empty strings if undefined
+
+  // Sample campus locations data
+  const campusLocations = [
+    { id: 1, name: 'Main Building', latitude: 9.882909, longitude: 78.082512, type: 'departments' },
+    { id: 2, name: 'Library', latitude: 9.882744, longitude: 78.081243, type: 'facilities' },
+    { id: 3, name: 'Food Court', latitude: 9.883353, longitude: 78.083247, type: 'facilities' },
+    { id: 4, name: 'Parking Area', latitude: 9.882762, longitude: 78.080839, type: 'parking' },
+    { id: 5, name: 'CSE Department', latitude: 9.882886, longitude: 78.083664, type: 'departments' },
+    { id: 6, name: 'TCE Back Gate', latitude: 9.881486, longitude: 78.083564, type: 'gates' },
+    { id: 7, name: 'T S Srinivasan Centre', latitude: 9.882756, longitude: 78.080579, type: 'facilities' },
+    { id: 8, name: 'TCE Ground', latitude: 9.884014, longitude: 78.081513, type: 'grounds' },
+  ];
+
+  // Filter locations based on `filterType` received from Route params or defaults
   useEffect(() => {
-    (async () => {
+    if (filterType) {
+      const filtered = campusLocations.filter((loc) => loc.type === filterType);
+      setFilteredLocations(filtered);
+    } else {
+      setFilteredLocations([]); // No locations if filter is not defined
+    }
+  }, [filterType]);
+
+  // Fetch user's current location
+  useEffect(() => {
+    const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
+        console.error('Permission to access location was denied');
         return;
       }
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
-    })();
+    };
+    getLocation();
   }, []);
 
-  const handleSearch = (text) => {
-    setSearchText(text);
-    const foundLocation = campusLocations.find((loc) =>
-      loc.name.toLowerCase().includes(text.toLowerCase())
-    );
-    if (foundLocation) {
-      setSearchedLocation(foundLocation);
-      // Check proximity to nearby locations
-      const nearby = nearbyLocations.filter((loc) => {
-        const distance = getDistance(
-          foundLocation.latitude,
-          foundLocation.longitude,
-          loc.latitude,
-          loc.longitude
+  // Handle search logic
+  useEffect(() => {
+   
+    if (searchQuery || searchText.trim() === '') {
+      const text = searchQuery || searchText;
+
+      if (text.trim() !== '') {
+        // Case-insensitive search for partial matches
+        const foundLocation = campusLocations.find((loc) =>
+          loc.name.toLowerCase().includes(text.toLowerCase())
         );
-        return distance <= 200; // Show nearby locations within 200 meters
-      });
-      setShowNearby(nearby.length > 0); // Show nearby only if there are any within range
-    } else {
-      setSearchedLocation(null);
-      setShowNearby(false);
+
+        if (foundLocation) {
+          setSearchedLocation(foundLocation);
+          const nearby = campusLocations.filter((loc) => {
+            const distance = getDistance(
+              foundLocation.latitude,
+              foundLocation.longitude,
+              loc.latitude,
+              loc.longitude
+            );
+            return distance > 0 && distance <= 200; // Distance threshold for nearby markers
+          });
+
+          setNearbyMarkers(nearby);
+        } else {
+          setSearchedLocation(null);
+          setNearbyMarkers([]);
+        }
+      } else {
+        // If no search query, reset the search results
+        setSearchedLocation(null);
+        setNearbyMarkers([]);
+      }
+
+      // Mark that the search has been performed
+      setIsSearchPerformed(true);
     }
-  };
+  }, [searchQuery, searchText]);
+  useEffect(() => {
+    if (searchText.trim() !== '') {
 
-  const handleMarkerPress = (location) => {
-    // Navigate to LocationDetails with the specific location id
-    navigation.navigate('LocationDetails', { locationId: location.id });
-  };
+  
+      // Search for the location based on searchText
+      const foundLocation = campusLocations.find((loc) =>
+        loc.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+  
+      if (foundLocation) {
+        setSearchedLocation(foundLocation);
+  
+        // Nearby locations within a certain radius
+        const nearby = campusLocations.filter((loc) => {
+          const distance = getDistance(
+            foundLocation.latitude,
+            foundLocation.longitude,
+            loc.latitude,
+            loc.longitude
+          );
+          return distance > 0 && distance <= 200; // Nearby locations within 200 meters
+        });
+  
+        setNearbyMarkers(nearby);
+      } else {
+        setSearchedLocation(null);
+        setNearbyMarkers([]);
+      }
+    } else {
+      // If no search text, reset the search results
+      setSearchedLocation(null);
+      setNearbyMarkers([]);
+    }
+  
+    setIsSearchPerformed(true); // Mark that a search has been performed
+  }, [searchText]); // Trigger search whenever searchText changes
+  
 
-  const handleMapPress = () => {
-    setIsSearchFocused(false);
-    setSearchedLocation(null); // Clear searched location when tapping on the map
-    setShowNearby(false); // Clear nearby markers as well
-    Keyboard.dismiss();
+  const handleMarkerPress = (marker) => {
+    navigation.navigate('LocationDetails', { locationId: marker.id });
   };
 
   return (
@@ -95,29 +158,21 @@ const CampusMapScreen = ({ navigation }) => {
         style={styles.searchBar}
         placeholder="Search for locations..."
         value={searchText}
-        onChangeText={handleSearch}
-        onFocus={() => setIsSearchFocused(true)}
-        onBlur={() => {
-          setIsSearchFocused(false);
-          setSearchedLocation(null); // Clear searched location when search bar loses focus
-          setShowNearby(false); // Clear nearby markers when search bar loses focus
-          Keyboard.dismiss();
-        }}
+        onChangeText={setSearchText}
       />
 
       {/* Map View */}
       <MapView
         style={styles.map}
-        mapType="satellite"
         initialRegion={{
-          latitude: 9.882909126295969,
-          longitude: 78.08251234664523,
-          latitudeDelta: 0.004,
-          longitudeDelta: 0.004,
+          latitude: 9.882909,
+          longitude: 78.082512,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
         }}
-        onPress={handleMapPress} // Handle map press
+        mapType="satellite"
       >
-        {/* Display current location marker with custom icon */}
+        {/* User's Current Location */}
         {location && (
           <Marker
             coordinate={{
@@ -126,69 +181,57 @@ const CampusMapScreen = ({ navigation }) => {
             }}
             title="Your Location"
             description="You are here"
-          >
-            <Image
-              source={require('../../assets/marker.png')}
-              style={styles.locationIcon}
-            />
-          </Marker>
+            pinColor="green"
+          />
         )}
 
-        {/* Display searched location marker (red color) */}
-        {searchedLocation && (
+        {/* Only show filtered locations if filter is applied and search is not performed */}
+        {isSearchPerformed && filteredLocations.length > 0 && filteredLocations.map((marker) => (
+          <Marker
+            key={marker.id}
+            coordinate={{
+              latitude: marker.latitude,
+              longitude: marker.longitude,
+            }}
+            pinColor={marker.type === 'facilities' ? 'pink' : 'blue'} // Facilities are pink
+          >
+            <Callout onPress={() => handleMarkerPress(marker)}>
+              <Text>{marker.name}</Text>
+            </Callout>
+          </Marker>
+        ))}
+
+        {/* Show searched location with red marker after search */}
+        {isSearchPerformed && searchedLocation && (
           <Marker
             coordinate={{
               latitude: searchedLocation.latitude,
               longitude: searchedLocation.longitude,
             }}
-            title={searchedLocation.name}
-            pinColor="red"  // Changed to red
-            onPress={() => handleMarkerPress(searchedLocation)} // Navigate to location details on marker press
-          />
+            pinColor="red" // Red marker for searched location
+          >
+            <Callout onPress={() => handleMarkerPress(searchedLocation)}>
+              <Text>{searchedLocation.name}</Text>
+            </Callout>
+          </Marker>
         )}
 
-        {/* Display nearby markers (blue color) only when showNearby is true */}
-        {showNearby && nearbyLocations.map((location) => (
+        {/* Show nearby locations with blue marker after search */}
+        {isSearchPerformed && nearbyMarkers.length > 0 && nearbyMarkers.map((marker) => (
           <Marker
-            key={location.id}
+            key={marker.id}
             coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
+              latitude: marker.latitude,
+              longitude: marker.longitude,
             }}
-            title={location.name}
-            pinColor="blue"  // Changed to blue
-            onPress={() => {
-              setSearchedLocation(location);
-              navigation.navigate('LocationDetails', { locationId: location.id }); // Navigate to location details on marker press
-            }}
-          />
+            pinColor="blue" // Blue marker for nearby locations
+          >
+            <Callout onPress={() => handleMarkerPress(marker)}>
+              <Text>{marker.name}</Text>
+            </Callout>
+          </Marker>
         ))}
       </MapView>
-
-      {/* Display search results in a list */}
-      {isSearchFocused && (
-        <FlatList
-          data={campusLocations.filter((loc) =>
-            loc.name.toLowerCase().includes(searchText.toLowerCase())
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          style={styles.searchResults}
-          renderItem={({ item }) => (
-            <Text
-              style={styles.item}
-              onPress={() => {
-                setSearchedLocation(item);
-                setSearchText(item.name);
-                setIsSearchFocused(false);
-                setShowNearby(true); // Ensure nearby locations show if a valid location is selected
-                Keyboard.dismiss();
-              }}
-            >
-              {item.name}
-            </Text>
-          )}
-        />
-      )}
     </View>
   );
 };
@@ -197,37 +240,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  map: {
-    width: '100%',
-    height: '100%',
-  },
   searchBar: {
     height: 40,
-    borderColor: '#483f75',
-    borderWidth: 4,
+    borderColor: 'gray',
+    borderWidth: 1,
     margin: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    position: 'absolute',
-    top: 2, // Keeps it at the top of the screen
-    left: '5%',
-    right: '5%',
-    backgroundColor: 'white',
-    zIndex: 1,
+    paddingLeft: 10,
   },
-  searchResults: {
-    backgroundColor: 'white',
-    maxHeight: 100,
-  },
-  item: {
-    padding: 10,
-    fontSize: 18,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-  },
-  locationIcon: {
-    width: 30, // Icon size
-    height: 30,
+  map: {
+    flex: 1,
   },
 });
 
