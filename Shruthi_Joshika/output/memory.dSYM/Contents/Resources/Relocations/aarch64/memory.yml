@@ -1,0 +1,10 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/anushreemohanram/InCampusNavigationApp/Shruthi_Joshika/output/memory'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _firstFit, symObjAddr: 0x0, symBinAddr: 0x10000325C, symSize: 0x2A0 }
+  - { offset: 0x41, size: 0x8, addend: 0x0, symName: _firstFit, symObjAddr: 0x0, symBinAddr: 0x10000325C, symSize: 0x2A0 }
+  - { offset: 0x11C, size: 0x8, addend: 0x0, symName: _bestFit, symObjAddr: 0x2A0, symBinAddr: 0x1000034FC, symSize: 0x308 }
+  - { offset: 0x214, size: 0x8, addend: 0x0, symName: _worstFit, symObjAddr: 0x5A8, symBinAddr: 0x100003804, symSize: 0x308 }
+  - { offset: 0x30C, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x8B0, symBinAddr: 0x100003B0C, symSize: 0x360 }
+...

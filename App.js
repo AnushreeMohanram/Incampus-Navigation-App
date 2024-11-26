@@ -10,6 +10,7 @@ import CampusMapScreen from './src/screens/CampusMapScreen';
 import LocationDetailsScreen from './src/screens/LocationDetailsScreen';
 import LocationNotifications from './src/screens/LocationNotifications'; // Import as required
 
+
 const Stack = createStackNavigator();
 
 const App = () => {

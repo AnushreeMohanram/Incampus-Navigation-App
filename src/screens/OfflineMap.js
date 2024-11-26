@@ -1,11 +1,14 @@
-// screens/OfflineMap.js
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
-const OfflineMap = () => {
+
+const OfflineMapScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Offline Map Screen</Text>
+      <Image
+        source={require('../../assets/map.png')} // Replace with your image path
+        style={styles.mapImage}
+      />
     </View>
   );
 };
@@ -16,9 +19,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  text: {
-    fontSize: 20,
+  mapImage: {
+    width: '100%', // Adjust the width to fill the screen
+    height: '100%', // Adjust the height to fit the screen
+    resizeMode: 'contain', // Keeps the aspect ratio of the map
   },
 });
 
-export default OfflineMap;
+export default OfflineMapScreen;
