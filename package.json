@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "16": "^0.0.2",
+    "18": "^0.0.0",
     "@expo/metro-runtime": "~4.0.0",
     "@react-native-community/geolocation": "^3.4.0",
     "@react-native-community/viewpager": "5.0.11",
