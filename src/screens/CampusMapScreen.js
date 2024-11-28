@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, FlatList, Text, TouchableOpacity, Keyboard } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as Location from 'expo-location';
-import { Text } from 'react-native';
+
 
 const getDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3; // Earth's radius in meters
@@ -27,36 +27,47 @@ const CampusMapScreen = () => {
   const [location, setLocation] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [searchedLocation, setSearchedLocation] = useState(null);
-  const [nearbyMarkers, setNearbyMarkers] = useState([]);
   const [filteredLocations, setFilteredLocations] = useState([]);
-  const [isSearchPerformed, setIsSearchPerformed] = useState(false); // Track if search has been performed
+  const [isSearchPerformed, setIsSearchPerformed] = useState(false);
 
-  // Extract params from route if available
-  const { searchQuery = '', filterType = '' } = route.params || {}; // Default empty strings if undefined
 
-  // Sample campus locations data
+  // Reset searchText when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      setSearchText(''); // Reset the search bar text when navigating back
+    }, [])
+  );
+
+  // Destructure the params, with fallback values
+  const { searchQuery = '', filterType = '', departmentName, latitude, longitude } = route.params || {};
+
   const campusLocations = [
     { id: 1, name: 'Main Building', latitude: 9.882909, longitude: 78.082512, type: 'departments' },
     { id: 2, name: 'Library', latitude: 9.882744, longitude: 78.081243, type: 'facilities' },
     { id: 3, name: 'Food Court', latitude: 9.883353, longitude: 78.083247, type: 'facilities' },
     { id: 4, name: 'Parking Area', latitude: 9.882762, longitude: 78.080839, type: 'parking' },
     { id: 5, name: 'CSE Department', latitude: 9.882886, longitude: 78.083664, type: 'departments' },
-    { id: 6, name: 'TCE Back Gate', latitude: 9.881486, longitude: 78.083564, type: 'gates' },
+    { id: 6, name: 'Back Gate', latitude: 9.881486, longitude: 78.083564, type: 'gates' },
     { id: 7, name: 'T S Srinivasan Centre', latitude: 9.882756, longitude: 78.080579, type: 'facilities' },
     { id: 8, name: 'TCE Ground', latitude: 9.884014, longitude: 78.081513, type: 'grounds' },
+    { id: 9, name: 'IT Department', latitude: 9.882570, longitude: 78.083585, type: 'departments' },
+    { id: 10, name: 'B Halls', latitude: 9.881859, longitude: 78.082797, type: 'departments' },
+    { id: 11, name: 'TCE EIACP PC-RP', latitude: 9.881256, longitude: 78.083662, type: 'departments' },
+    { id: 12, name: 'ECE Department', latitude: 9.882978, longitude: 78.082533, type: 'departments' },
+    { id: 13, name: 'Woman Empowerment Cell', latitude: 9.882047679865266, longitude: 78.08364092299794, type: 'facilities' },
+    { id: 14, name: 'Science Block', latitude: 9.881977714735674, longitude: 78.08317317838197, type: 'departments' },
   ];
 
-  // Filter locations based on `filterType` received from Route params or defaults
   useEffect(() => {
     if (filterType) {
       const filtered = campusLocations.filter((loc) => loc.type === filterType);
       setFilteredLocations(filtered);
     } else {
-      setFilteredLocations([]); // No locations if filter is not defined
+      setFilteredLocations([]);
     }
   }, [filterType]);
 
-  // Fetch user's current location
+
   useEffect(() => {
     const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -70,82 +81,29 @@ const CampusMapScreen = () => {
     getLocation();
   }, []);
 
-  // Handle search logic
   useEffect(() => {
-   
-    if (searchQuery || searchText.trim() === '') {
-      const text = searchQuery || searchText;
+    const searchValue = searchQuery || searchText.trim();
 
-      if (text.trim() !== '') {
-        // Case-insensitive search for partial matches
-        const foundLocation = campusLocations.find((loc) =>
-          loc.name.toLowerCase().includes(text.toLowerCase())
-        );
-
-        if (foundLocation) {
-          setSearchedLocation(foundLocation);
-          const nearby = campusLocations.filter((loc) => {
-            const distance = getDistance(
-              foundLocation.latitude,
-              foundLocation.longitude,
-              loc.latitude,
-              loc.longitude
-            );
-            return distance > 0 && distance <= 200; // Distance threshold for nearby markers
-          });
-
-          setNearbyMarkers(nearby);
-        } else {
-          setSearchedLocation(null);
-          setNearbyMarkers([]);
-        }
-      } else {
-        // If no search query, reset the search results
-        setSearchedLocation(null);
-        setNearbyMarkers([]);
-      }
-
-      // Mark that the search has been performed
-      setIsSearchPerformed(true);
-    }
-  }, [searchQuery, searchText]);
-  useEffect(() => {
-    if (searchText.trim() !== '') {
-
-  
-      // Search for the location based on searchText
-      const foundLocation = campusLocations.find((loc) =>
-        loc.name.toLowerCase().includes(searchText.toLowerCase())
+    if (searchValue !== '') {
+      const filtered = campusLocations.filter((loc) =>
+        loc.name.toLowerCase().includes(searchValue.toLowerCase())
       );
-  
-      if (foundLocation) {
-        setSearchedLocation(foundLocation);
-  
-        // Nearby locations within a certain radius
-        const nearby = campusLocations.filter((loc) => {
-          const distance = getDistance(
-            foundLocation.latitude,
-            foundLocation.longitude,
-            loc.latitude,
-            loc.longitude
-          );
-          return distance > 0 && distance <= 200; // Nearby locations within 200 meters
-        });
-  
-        setNearbyMarkers(nearby);
-      } else {
-        setSearchedLocation(null);
-        setNearbyMarkers([]);
-      }
+
+      setFilteredLocations(filtered); // Set the filtered locations based on search query
+      setSearchedLocation(filtered.length > 0 ? filtered[0] : null); // Show first matched location
     } else {
-      // If no search text, reset the search results
-      setSearchedLocation(null);
-      setNearbyMarkers([]);
+      setFilteredLocations([]); // Clear results if no input
+      setSearchedLocation(null); // Reset searched location
     }
-  
-    setIsSearchPerformed(true); // Mark that a search has been performed
-  }, [searchText]); // Trigger search whenever searchText changes
-  
+
+    setIsSearchPerformed(true); // Marks the search as performed
+  }, [searchText, searchQuery]);
+
+  const handleSuggestionSelect = (location) => {
+    setSearchText(location.name); // Set the search bar text to the selected suggestion
+    setFilteredLocations([]); // Clear the suggestions list
+    Keyboard.dismiss(); // Hide the keyboard
+  };
 
   const handleMarkerPress = (marker) => {
     navigation.navigate('LocationDetails', { locationId: marker.id });
@@ -153,15 +111,29 @@ const CampusMapScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Search Bar */}
       <TextInput
         style={styles.searchBar}
         placeholder="Search for locations..."
         value={searchText}
-        onChangeText={setSearchText}
+        onChangeText={setSearchText} // Updates searchText when user types
       />
 
-      {/* Map View */}
+      {/* Display location suggestions below search bar */}
+      {(isSearchPerformed) && filteredLocations.length == 0 && (
+        <FlatList
+          data={filteredLocations}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleSuggestionSelect(item)}>
+              <View style={styles.suggestionContainer}>
+                <Text style={styles.suggestionText}>{item.name}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          style={styles.suggestionList} // Add styling for the FlatList
+        />
+      )}
+
       <MapView
         style={styles.map}
         initialRegion={{
@@ -172,7 +144,8 @@ const CampusMapScreen = () => {
         }}
         mapType="satellite"
       >
-        {/* User's Current Location */}
+
+          {/* User's Current Location */}
         {location && (
           <Marker
             coordinate={{
@@ -185,8 +158,8 @@ const CampusMapScreen = () => {
           />
         )}
 
-        {/* Only show filtered locations if filter is applied and search is not performed */}
-        {isSearchPerformed && filteredLocations.length > 0 && filteredLocations.map((marker) => (
+          {/* Only show filtered locations if filter is applied and search is not performed */}
+          {isSearchPerformed && filteredLocations.length > 0 && filteredLocations.map((marker) => (
           <Marker
             key={marker.id}
             coordinate={{
@@ -201,36 +174,30 @@ const CampusMapScreen = () => {
           </Marker>
         ))}
 
-        {/* Show searched location with red marker after search */}
+                {/* Show the specific department location */}
+        {departmentName && latitude && longitude && (
+          <Marker coordinate={{ latitude, longitude }} title={departmentName}>
+            <Callout>
+              <Text>{departmentName}</Text>
+            </Callout>
+          </Marker>
+        )}
+
+
+ {/* Show searched location with red marker after search */}
         {isSearchPerformed && searchedLocation && (
           <Marker
             coordinate={{
               latitude: searchedLocation.latitude,
               longitude: searchedLocation.longitude,
             }}
-            pinColor="red" // Red marker for searched location
+            pinColor="red"
           >
             <Callout onPress={() => handleMarkerPress(searchedLocation)}>
               <Text>{searchedLocation.name}</Text>
             </Callout>
           </Marker>
         )}
-
-        {/* Show nearby locations with blue marker after search */}
-        {isSearchPerformed && nearbyMarkers.length > 0 && nearbyMarkers.map((marker) => (
-          <Marker
-            key={marker.id}
-            coordinate={{
-              latitude: marker.latitude,
-              longitude: marker.longitude,
-            }}
-            pinColor="blue" // Blue marker for nearby locations
-          >
-            <Callout onPress={() => handleMarkerPress(marker)}>
-              <Text>{marker.name}</Text>
-            </Callout>
-          </Marker>
-        ))}
       </MapView>
     </View>
   );
@@ -246,6 +213,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     margin: 10,
     paddingLeft: 10,
+    borderRadius: 20, // Make the search bar rounded
+  },
+  suggestionList: {
+    position: 'absolute',
+    top: 60, // Place the list just below the search bar
+    left: 10,
+    right: 10,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    zIndex: 1,
+    maxHeight: 200, // Limit the height of the suggestion list
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  suggestionContainer: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    borderRadius: 10, // Rounded corners for each suggestion
+  },
+  suggestionText: {
+    fontSize: 16,
   },
   map: {
     flex: 1,

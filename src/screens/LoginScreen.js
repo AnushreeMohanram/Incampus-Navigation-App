@@ -4,9 +4,9 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 const LoginScreen = ({ navigation }) => {
   const handleRoleSelection = (role) => {
     if (role === 'Student/Faculty') {
-      navigation.navigate('StudentOrFacultyScreen', { role });
+      navigation.navigate('StudentOrFacultyScreen');
     } else {
-      navigation.navigate('ParentOrVisitorScreen', { role });
+      navigation.navigate('ParentOrVisitorScreen');
     }
   };
 
@@ -33,6 +33,11 @@ const LoginScreen = ({ navigation }) => {
       </TouchableOpacity>
     </View>
   );
+};
+
+const handleSuccessfulLogin = () => {
+  // After role selection, navigate to the Drawer Navigation
+  navigation.navigate('HomeScreen');
 };
 
 const styles = StyleSheet.create({
