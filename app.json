@@ -17,21 +17,21 @@
         "NSLocationWhenInUseUsageDescription": "This app uses your location to send notifications.",
         "NSLocationAlwaysUsageDescription": "This app needs access to your location for notifications."
       }
-
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff",
-        "permissions": ["NOTIFICATIONS", "ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION"]
+        "permissions": [
+          "NOTIFICATIONS",
+          "ACCESS_FINE_LOCATION",
+          "ACCESS_BACKGROUND_LOCATION"
+        ]
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
-
-    
+    },
+    "newArchEnabled": true
   }
-
-  
 }
