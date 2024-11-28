@@ -10,7 +10,7 @@ import Find from '../screens/Find';
 import Favorites from '../screens/Favorites';
 import OfflineMap from '../screens/OfflineMap';
 import DrinkingStation from '../screens/DrinkingStation';
-import Washrooms from '../screens/Washrooms';
+import Washrooms from '../screens/WashroomScreen';
 import Feedback from '../screens/Feedback';
 
 const Drawer = createDrawerNavigator();

@@ -3,6 +3,7 @@ import { View, TextInput, FlatList, Text, StyleSheet, Dimensions, Keyboard, Imag
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
+
 // Sample data for campus and nearby locations
 const campusLocations = [
   { id: 1, name: 'Main Building', latitude: 9.882909126295969, longitude: 78.08251234664523 },
