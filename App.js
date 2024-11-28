@@ -4,8 +4,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { PaperProvider, DefaultTheme, DarkTheme } from 'react-native-paper';
 import { useColorScheme } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-
-import 'react-native-gesture-handler';  // Ensure gesture handling is enabled
+import 'react-native-gesture-handler'; // Make sure to add this import for gesture handling
 
 import LoginScreen from './src/screens/LoginScreen';
 import StudentOrFacultyScreen from './src/screens/StudentOrFacultyScreen';
@@ -15,6 +14,7 @@ import LocationDetailsScreen from './src/screens/LocationDetailsScreen';
 import LocationNotifications from './src/screens/LocationNotifications'; // Import as required
 import DrawerNavigation from './src/navigation/DrawerNavigation'; // Your Drawer component
 import DepartmentDetails from './src/screens/DepartmentDetails';
+
 
 const Drawer = createDrawerNavigator();
 
@@ -54,6 +54,7 @@ const App = () => {
         </Drawer.Navigator>
       </NavigationContainer>
     </PaperProvider>
+
   );
 };
 
