@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Button, Alert, Linking, Image } from 'react-native';
-import * as Notifications from 'expo-notifications';
 
 // Sample campus locations
 const campusLocations = [
@@ -28,79 +27,146 @@ const campusLocations = [
     latitude: 9.883353073355941, 
     longitude: 78.08324716419759,
     image: require('../../assets/foodcourt.jpeg'), 
-    hours: '10am - 10pm',
+    description: 'Food court with various cuisines',
+    hours: '9am - 5pm',
   },
+  { 
+    id: 4, 
+    name: 'Parking Area', 
+    latitude: 9.882762, 
+    longitude: 78.080839,
+    description: 'PARKING',
+    hours: '9am - 5pm',
+  },
+  { 
+    id: 5, 
+    name: 'CSE Department', 
+    latitude: 9.882886,
+    longitude: 78.083664,
+    description: 'Department of Computer Science and Engineering',
+    hours: '9am - 5pm',
+  },
+  {
+    id: 6,
+    name: 'Back Gate',
+    latitude: 9.881486,
+    longitude: 78.083564,
+    image: require('../../assets/backGate.png'),
+    type: 'gates',
+    description: 'Back side entrance gate to the campus.',
+    hours: '9am - 6.30pm'
+  },
+  { 
+    id: 7, 
+    name: 'T S Srinivasan Centre', 
+    latitude: 9.882756, 
+    longitude: 78.08324716419759,
+    image: require('../../assets/centre.jpg'), 
+    description: 'Research foundation',
+    hours: '9am - 5pm',
+  },
+  { 
+    id: 8, 
+    name: 'TCE Ground', 
+    latitude: 9.883993744748045, 
+    longitude:  78.08150340208562,
+    image: require('../../assets/ground.png'), 
+    description: 'Spacious outdoor main ground',
+    hours: '6am - 8pm',
+  },
+  
+  {
+    id: 9,
+    name: 'IT Department',
+    latitude: 9.882570,
+    longitude: 78.083585,
+    type: 'departments',
+    description: 'Information Technology Department.',
+    hours: '9am - 5pm'
+  },
+
+  {
+    id: 10,
+    name: 'B Halls',
+    latitude: 9.881859,
+    longitude: 78.082797,
+    type: 'departments',
+    description: 'B Halls for various department activities.',
+    hours: '9am - 6pm'
+  },
+  {
+    id: 11,
+    name: 'TCE EIACP PC-RP',
+    latitude: 9.881256,
+    longitude: 78.083662,
+    type: 'departments',
+    description: 'Resource Partner for Plastic Waste Management',
+    hours: '9am - 5pm'
+  },
+  {
+    id: 12,
+    name: 'ECE Department',
+    latitude: 9.882978,
+    longitude: 78.082533,
+    type: 'departments',
+    description: 'Department of Electronics and Communication Engineering.',
+    hours: '9am - 5pm'
+  },
+  {
+    id: 13,
+    name: 'Woman Empowerment Cell',
+    latitude: 9.882047679865266,
+    longitude: 78.08364092299794,
+    type: 'facilities',
+    description: 'Facility dedicated to empowering women on campus.',
+    hours: '9am - 5pm'
+  },
+  {
+    id: 14,
+    name: 'Science Block',
+    latitude: 9.881977714735674,
+    longitude: 78.08317317838197,
+    type: 'departments',
+    description: 'Science Block housing multiple science-related departments.',
+    hours: '9am - 6pm'
+  }
 ];
-
-const nearbyLocations = [
-  { id: 1, name: 'Computer Lab', latitude: 9.883109, longitude: 78.083105 },
-  { id: 2, name: 'Parking Area', latitude: 9.882700, longitude: 78.083850 },
-  { id: 3, name: 'Auditorium', latitude: 9.883400, longitude: 78.084200 },
-];
-
-const getDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371e3; // Earth radius in meters
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c; // Distance in meters
-};
 
 const LocationDetailsScreen = ({ route }) => {
-  const { locationId } = route.params; // Retrieve the locationId passed through the route
-  const location = campusLocations.find((loc) => loc.id === locationId); // Find the location based on the passed ID
+  // Retrieve the locationId passed through the route
+  const { locationId } = route.params;
 
-  const showNearbyNotifications = () => {
-    const nearby = nearbyLocations.filter((loc) => {
-      const distance = getDistance(
-        location.latitude,
-        location.longitude,
-        loc.latitude,
-        loc.longitude
-      );
-      return distance <= 200; // Show nearby locations within 200 meters
-    });
+  // Find the location based on the passed ID
+  const location = campusLocations.find(loc => loc.id === locationId);
 
-    if (nearby.length > 0) {
-      nearby.forEach((nearbyLoc) => {
-        Notifications.scheduleNotificationAsync({
-          content: {
-            title: `Nearby Location: ${nearbyLoc.name}`,
-            body: `Located near ${location.name}`,
-          },
-          trigger: null, // Trigger immediately
-        });
-      });
-    }
-  };
+  // Check if the location was found
+  if (!location) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Location not found!</Text>
+      </View>
+    );
+  }
 
-  const openMap = async () => {
+  const openMap = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}`;
 
     // Check if the URL can be opened and prompt the user to open the map
     Linking.canOpenURL(url)
       .then((supported) => {
         if (!supported) {
-          Alert.alert('Error', 'Unable to open map.');
+          Alert.alert("Error", "Unable to open map.");
         } else {
           Alert.alert(
-            'Open in Maps',
+            "Open in Maps",
             `Would you like to get directions to ${location.name}?`,
             [
-              { text: 'Cancel', style: 'cancel' },
+              { text: "Cancel", style: "cancel" },
               {
-                text: 'Open',
+                text: "Open",
                 onPress: () => {
-                  showNearbyNotifications(); // Send notifications before opening map
-                  Linking.openURL(url).catch((err) =>
-                    Alert.alert('Error', 'Failed to open the map.')
+                  Linking.openURL(url).catch(() =>
+                    Alert.alert("Error", "Failed to open the map.")
                   );
                 },
               },
@@ -108,19 +174,28 @@ const LocationDetailsScreen = ({ route }) => {
           );
         }
       })
-      .catch((err) => Alert.alert('Error', 'An unexpected error occurred.'));
+      .catch(() => Alert.alert("Error", "An unexpected error occurred."));
   };
 
   return (
     <View style={styles.container}>
       {/* Display the location image */}
-      <Image source={location.image} style={styles.locationImage} />
+      {location.image && (
+        <Image 
+          source={location.image}
+          style={styles.locationImage}
+        />
+      )}
       <Text style={styles.title}>{location.name}</Text>
       <Text style={styles.details}>Description: {location.description}</Text>
       <Text style={styles.details}>Operating Hours: {location.hours}</Text>
 
       {/* Button to open directions in Google Maps */}
-      <Button title="Get Directions" onPress={openMap} color="#1E90FF" />
+      <Button
+        title="Get Directions"
+        onPress={openMap}
+        color="#1E90FF"
+      />
     </View>
   );
 };
@@ -140,12 +215,17 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 16,
     marginBottom: 10,
+    textAlign: 'center',
   },
   locationImage: {
     width: 200,
     height: 200,
     borderRadius: 10,
     marginBottom: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    color: 'red',
   },
 });
 

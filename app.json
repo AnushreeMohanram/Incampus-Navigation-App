@@ -14,17 +14,21 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
+
         "NSLocationWhenInUseUsageDescription": "This app uses your location to send notifications and provide navigation assistance.",
         "NSLocationAlwaysUsageDescription": "This app needs continuous access to your location for sending notifications about nearby locations and navigation updates.",
         "UIBackgroundModes": ["location", "fetch"]
       },
       "bundleIdentifier": "com.example.InCampusNavigationApp"
     },
+    
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
+
         "backgroundColor": "#ffffff"
       },
+      
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
@@ -38,6 +42,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    
     "plugins": [
       [
         "expo-notifications",
@@ -53,5 +58,6 @@
         "projectId": "your-eas-project-id"
       }
     }
+
   }
 }

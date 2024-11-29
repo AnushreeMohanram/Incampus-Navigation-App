@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -7,6 +8,9 @@ import * as FileSystem from 'expo-file-system'; // Import expo-file-system to cr
 import * as Notifications from 'expo-notifications'; // Import expo-notifications
 
 import DrawerNavigation from './src/navigation/DrawerNavigation'; // Correct path
+import React, { useState } from 'react';
+
+
 import LoginScreen from './src/screens/LoginScreen';
 import StudentOrFacultyScreen from './src/screens/StudentOrFacultyScreen';
 import ParentOrVisitorScreen from './src/screens/ParentOrVisitorScreen';
@@ -17,6 +21,8 @@ import WashroomScreen from './src/screens/WashroomScreen';
 import FemaleWashroomScreen from './src/screens/FemaleWashroomScreen';
 import MaleWashroomScreen from './src/screens/MaleWashroomScreen';
 import WashroomDetailsScreen from './src/screens/WashroomDetailsScreen';
+import LocationNotifications from './src/screens/LocationNotifications';
+import Favorites from './src/screens/Favorites';
 
 const Stack = createStackNavigator();
 
@@ -61,10 +67,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        {/* Login Screen */}
         <Stack.Screen name="Login" component={LoginScreen} />
-        
-        {/* Choose Student or Faculty / Parent or Visitor */}
         <Stack.Screen name="StudentOrFacultyScreen" component={StudentOrFacultyScreen} />
         <Stack.Screen name="ParentOrVisitorScreen" component={ParentOrVisitorScreen} />
 
@@ -99,6 +102,19 @@ const App = () => {
           component={TurnByTurnNotification} 
           options={{ title: 'Turn-by-Turn Notifications' }} 
         />
+
+        <Stack.Screen name="Favorites">
+          {(props) => <Favorites {...props} recentlyVisited={recentlyVisited} />}
+        </Stack.Screen>
+        <Stack.Screen name="HomeDrawer" component={DrawerNavigation} options={{ headerShown: false }} />
+        <Stack.Screen name="CampusMap">
+          {(props) => (
+            <CampusMapScreen {...props} addVisitedLocation={addVisitedLocation} />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="LocationDetails" component={LocationDetailsScreen} />
+        <Stack.Screen name="LocationNotifications" component={LocationNotifications} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
