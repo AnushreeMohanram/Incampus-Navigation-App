@@ -14,24 +14,50 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to send notifications.",
-        "NSLocationAlwaysUsageDescription": "This app needs access to your location for notifications."
-      }
+
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to send notifications and provide navigation assistance.",
+        "NSLocationAlwaysUsageDescription": "This app needs continuous access to your location for sending notifications about nearby locations and navigation updates.",
+        "UIBackgroundModes": ["location", "fetch"]
+      },
+      "bundleIdentifier": "com.example.InCampusNavigationApp"
     },
+    
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "permissions": [
-          "NOTIFICATIONS",
-          "ACCESS_FINE_LOCATION",
-          "ACCESS_BACKGROUND_LOCATION"
-        ]
-      }
+
+        "backgroundColor": "#ffffff"
+      },
+      
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "NOTIFICATIONS"
+      ],
+      "package": "com.example.InCampusNavigationApp",
+      "useNextNotificationsApi": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "newArchEnabled": true
+    
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff",
+          "mode": "production"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+
   }
 }

@@ -21,9 +21,9 @@ const LoginScreen = ({ navigation }) => {
       {/* Header */}
       <Text style={styles.header}>Who are you?</Text>
 
-      {/* Role selection buttons */}
       <TouchableOpacity style={styles.button} onPress={() => handleRoleSelection('Student/Faculty')}>
-        <Text style={styles.buttonText}>TCE Student / Faculty</Text>
+        <Text style={styles.buttonText}>Student/Faculty</Text>
+
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={() => handleRoleSelection('parent')}>
         <Text style={styles.buttonText}>Parent</Text>
