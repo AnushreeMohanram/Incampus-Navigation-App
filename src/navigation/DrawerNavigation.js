@@ -8,7 +8,6 @@ import OfflineMap from '../screens/OfflineMap';
 import DrinkingStation from '../screens/DrinkingStation';
 import Washrooms from '../screens/Washrooms';
 import Feedback from '../screens/Feedback';
-import Settings from '../screens/Settings';
 
 const Drawer = createDrawerNavigator();
 
@@ -27,7 +26,6 @@ const DrawerNavigation = () => {
       <Drawer.Screen name="Drinking Station" component={DrinkingStation} />
       <Drawer.Screen name="Washrooms" component={Washrooms} />
       <Drawer.Screen name="Feedback" component={Feedback} />
-      <Drawer.Screen name="Settings" component={Settings} />
     </Drawer.Navigator>
   );
 };

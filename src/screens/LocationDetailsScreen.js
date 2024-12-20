@@ -186,7 +186,7 @@ const LocationDetailsScreen = ({ route }) => {
           style={styles.locationImage}
         />
       ) : (
-        <Text style={styles.errorText}>No image available</Text>
+        <Text style={styles.errorText}></Text>
       )}
       <Text style={styles.title}>{location.name}</Text>
       <Text style={styles.details}>Description: {location.description}</Text>
@@ -217,6 +217,7 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 16,
     marginBottom: 10,
+    textAlign: 'center',
   },
   locationImage: {
     width: 200,

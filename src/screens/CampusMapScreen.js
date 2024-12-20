@@ -56,6 +56,12 @@ const CampusMapScreen = () => {
     { id: 12, name: 'ECE Department', latitude: 9.882978, longitude: 78.082533, type: 'departments' },
     { id: 13, name: 'Woman Empowerment Cell', latitude: 9.882047679865266, longitude: 78.08364092299794, type: 'facilities' },
     { id: 14, name: 'Science Block', latitude: 9.881977714735674, longitude: 78.08317317838197, type: 'departments' },
+    { id: 15, name: 'Main Building', latitude: 9.882909, longitude: 78.082512, type: 'drinking_station' },
+    { id: 16, name: 'Library', latitude: 9.882744, longitude: 78.081243, type: 'drinking_station' },
+    { id: 17, name: 'Food Court', latitude: 9.883353, longitude: 78.083247, type: 'drinking_station' },
+    { id: 18, name: 'CSE Department', latitude: 9.882886, longitude: 78.083664, type: 'drinking_station' },
+    { id: 19, name: 'Civil Department', latitude: 9.882239492713243, longitude: 78.0832000805217, type: 'drinking_station' },
+
   ];
 
   useEffect(() => {
