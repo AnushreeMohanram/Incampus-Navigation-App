@@ -185,6 +185,8 @@ const LocationDetailsScreen = ({ route }) => {
           source={location.image}
           style={styles.locationImage}
         />
+      ) : (
+        <Text style={styles.errorText}></Text>
       )}
       <Text style={styles.title}>{location.name}</Text>
       <Text style={styles.details}>Description: {location.description}</Text>

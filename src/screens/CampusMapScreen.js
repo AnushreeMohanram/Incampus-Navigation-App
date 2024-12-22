@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, FlatList, Text, TouchableOpacity, Keyboard, Image } from 'react-native';
+import { View, TextInput, StyleSheet, FlatList, Text, TouchableOpacity, Keyboard } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as Location from 'expo-location';
-import dropIcon from '../assets/drop_icon.png'; // Adjust the path if necessary
+
 
 const getDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3; // Earth's radius in meters
@@ -30,6 +30,15 @@ const CampusMapScreen = () => {
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [isSearchPerformed, setIsSearchPerformed] = useState(false);
 
+
+  // Reset searchText when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      setSearchText(''); // Reset the search bar text when navigating back
+    }, [])
+  );
+
+  // Destructure the params, with fallback values
   const { searchQuery = '', filterType = '', departmentName, latitude, longitude } = route.params || {};
 
   const campusLocations = [
@@ -45,8 +54,14 @@ const CampusMapScreen = () => {
     { id: 10, name: 'B Halls', latitude: 9.881859, longitude: 78.082797, type: 'departments' },
     { id: 11, name: 'TCE EIACP PC-RP', latitude: 9.881256, longitude: 78.083662, type: 'departments' },
     { id: 12, name: 'ECE Department', latitude: 9.882978, longitude: 78.082533, type: 'departments' },
-    { id: 13, name: 'Woman Empowerment Cell', latitude: 9.882048, longitude: 78.083641, type: 'facilities' },
-    { id: 14, name: 'Science Block', latitude: 9.881978, longitude: 78.083173, type: 'departments' },
+    { id: 13, name: 'Woman Empowerment Cell', latitude: 9.882047679865266, longitude: 78.08364092299794, type: 'facilities' },
+    { id: 14, name: 'Science Block', latitude: 9.881977714735674, longitude: 78.08317317838197, type: 'departments' },
+    { id: 15, name: 'Main Building', latitude: 9.882909, longitude: 78.082512, type: 'drinking_station' },
+    { id: 16, name: 'Library', latitude: 9.882744, longitude: 78.081243, type: 'drinking_station' },
+    { id: 17, name: 'Food Court', latitude: 9.883353, longitude: 78.083247, type: 'drinking_station' },
+    { id: 18, name: 'CSE Department', latitude: 9.882886, longitude: 78.083664, type: 'drinking_station' },
+    { id: 19, name: 'Civil Department', latitude: 9.882239492713243, longitude: 78.0832000805217, type: 'drinking_station' },
+
   ];
 
   useEffect(() => {
@@ -57,6 +72,7 @@ const CampusMapScreen = () => {
       setFilteredLocations([]);
     }
   }, [filterType]);
+
 
   useEffect(() => {
     const getLocation = async () => {
@@ -71,19 +87,21 @@ const CampusMapScreen = () => {
     getLocation();
   }, []);
 
-  // Filter locations based on route parameter (if provided)
   useEffect(() => {
     const searchValue = searchQuery || searchText.trim();
+
     if (searchValue !== '') {
       const filtered = campusLocations.filter((loc) =>
         loc.name.toLowerCase().includes(searchValue.toLowerCase())
       );
-      setFilteredLocations(filtered);
+
+      setFilteredLocations(filtered); // Set the filtered locations based on search query
       setSearchedLocation(filtered.length > 0 ? filtered[0] : null); // Show first matched location
     } else {
-      setFilteredLocations([]);
+      setFilteredLocations([]); // Clear results if no input
       setSearchedLocation(null); // Reset searched location
     }
+
     setIsSearchPerformed(true); // Marks the search as performed
   }, [searchText, searchQuery]);
 
@@ -105,10 +123,11 @@ const CampusMapScreen = () => {
         style={styles.searchBar}
         placeholder="Search for locations..."
         value={searchText}
-        onChangeText={setSearchText}
+        onChangeText={setSearchText} // Updates searchText when user types
       />
 
-      {isSearchPerformed && filteredLocations.length === 0 && (
+      {/* Display location suggestions below search bar */}
+      {(isSearchPerformed) && filteredLocations.length == 0 && (
         <FlatList
           data={filteredLocations}
           keyExtractor={(item) => item.id.toString()}
@@ -119,7 +138,7 @@ const CampusMapScreen = () => {
               </View>
             </TouchableOpacity>
           )}
-          style={styles.suggestionList}
+          style={styles.suggestionList} // Add styling for the FlatList
         />
       )}
 
@@ -133,6 +152,8 @@ const CampusMapScreen = () => {
         }}
         mapType="satellite"
       >
+
+          {/* User's Current Location */}
         {location && (
           <Marker
             coordinate={{
@@ -145,7 +166,8 @@ const CampusMapScreen = () => {
           />
         )}
 
-        {isSearchPerformed && filteredLocations.length > 0 && filteredLocations.map((marker) => (
+          {/* Only show filtered locations if filter is applied and search is not performed */}
+          {isSearchPerformed && filteredLocations.length > 0 && filteredLocations.map((marker) => (
           <Marker
             key={marker.id}
             coordinate={{
@@ -164,15 +186,17 @@ const CampusMapScreen = () => {
           </Marker>
         ))}
 
-  
-{departmentName && latitude && longitude && (
-    <Marker coordinate={{ latitude, longitude }} title={departmentName}>
-      <Callout onPress={() => handleMarkerPress({ id: departmentName, name: departmentName, latitude, longitude })}>
-        <Text>{departmentName}</Text>
-      </Callout>
-    </Marker>
-  )}
+                {/* Show the specific department location */}
+        {departmentName && latitude && longitude && (
+          <Marker coordinate={{ latitude, longitude }} title={departmentName}>
+            <Callout>
+              <Text>{departmentName}</Text>
+            </Callout>
+          </Marker>
+        )}
 
+
+ {/* Show searched location with red marker after search */}
         {isSearchPerformed && searchedLocation && (
           <Marker
             coordinate={{
@@ -201,23 +225,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     margin: 10,
     paddingLeft: 10,
-    borderRadius: 5,
+    borderRadius: 20, // Make the search bar rounded
+  },
+  suggestionList: {
+    position: 'absolute',
+    top: 60, // Place the list just below the search bar
+    left: 10,
+    right: 10,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    zIndex: 1,
+    maxHeight: 200, // Limit the height of the suggestion list
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
   suggestionContainer: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'lightgray',
+    borderBottomColor: '#ccc',
+    borderRadius: 10, // Rounded corners for each suggestion
   },
   suggestionText: {
     fontSize: 16,
-  },
-  suggestionList: {
-    position: 'absolute',
-    top: 50,
-    left: 10,
-    right: 10,
-    backgroundColor: 'white',
-    zIndex: 1,
   },
   map: {
     flex: 1,

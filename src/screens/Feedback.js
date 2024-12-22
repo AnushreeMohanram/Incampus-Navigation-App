@@ -1,24 +1,22 @@
-// screens/Feedback.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
 const Feedback = () => {
-  const [rating, setRating] = useState(null); // To track rating
-  const [comment, setComment] = useState(''); // To track comment
+  const [rating, setRating] = useState(0); // Default to 0 for no rating
+  const [comment, setComment] = useState(''); // Track comments
 
   const handleRating = (rate) => {
-    setRating(rate);
+    setRating(rate); // Set selected rating
   };
 
   const handleSubmit = () => {
-    if (!rating || !comment) {
+    if (!rating || comment.trim() === '') {
       Alert.alert('Error', 'Please provide both a rating and a comment.');
     } else {
-      // Simulate sending feedback (you can integrate API or database later)
+      // Corrected string interpolation inside Alert
       Alert.alert('Feedback Submitted', `Rating: ${rating}\nComment: ${comment}`);
-      // Reset after submission
-      setRating(null);
-      setComment('');
+      setRating(0); // Reset rating
+      setComment(''); // Clear comment
     }
   };
 
@@ -32,7 +30,7 @@ const Feedback = () => {
         {[1, 2, 3, 4, 5].map((rate) => (
           <Button
             key={rate}
-            title={`${rate} ★`}
+            title={`${rate} ★`} // Corrected dynamic title for rating
             onPress={() => handleRating(rate)}
             color={rating === rate ? 'green' : 'gray'} // Highlight selected rating
           />
@@ -61,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#4CAF50', // Green background color
+    backgroundColor: '#4CAF50',
     padding: 20,
   },
   title: {
