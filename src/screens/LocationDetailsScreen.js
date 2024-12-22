@@ -203,14 +203,14 @@ const LocationDetailsScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginVertical: 20,
   },
   details: {
     fontSize: 16,
@@ -218,9 +218,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   locationImage: {
-    width: 200,
+    width: 300,
     height: 200,
-    borderRadius: 10,
     marginBottom: 20,
   },
   errorText: {

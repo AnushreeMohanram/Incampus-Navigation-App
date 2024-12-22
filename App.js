@@ -2,8 +2,8 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import 'react-native-gesture-handler'; // Make sure to add this import for gesture handling
-import { View, Text } from 'react-native'; // To add a simple test view
+import 'react-native-gesture-handler'; 
+import { View, Text } from 'react-native'; 
 import * as FileSystem from 'expo-file-system'; // Import expo-file-system to create the directory
 import * as Notifications from 'expo-notifications'; // Import expo-notifications
 
@@ -16,6 +16,7 @@ import StudentOrFacultyScreen from './src/screens/StudentOrFacultyScreen';
 import ParentOrVisitorScreen from './src/screens/ParentOrVisitorScreen';
 import CampusMapScreen from './src/screens/CampusMapScreen';
 import LocationDetailsScreen from './src/screens/LocationDetailsScreen';
+import DepartmentDetails from './src/screens/DepartmentDetails';
 import TurnByTurnNotification from './src/screens/TurnByTurnNotification'; // Import TurnByTurnNotification screen
 import WashroomScreen from './src/screens/WashroomScreen';
 import FemaleWashroomScreen from './src/screens/FemaleWashroomScreen';

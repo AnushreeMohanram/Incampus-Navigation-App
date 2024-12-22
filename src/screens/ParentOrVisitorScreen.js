@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 const ParentOrVisitorScreen = ({ route, navigation }) => {
-  const { role } = route.params;
 
   const handleProceed = () => {
     // Navigate to the Home Drawer (assuming it's called "HomeDrawer")

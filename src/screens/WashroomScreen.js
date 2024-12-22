@@ -31,7 +31,7 @@ const WashroomScreen = ({ navigation }) => {
       </TouchableOpacity>
 
       {/* Custom Modal for Fun Text */}
-      {/* <Modal
+      <Modal
         animationType="fade"
         transparent={true}
         visible={modalVisible}
@@ -48,7 +48,7 @@ const WashroomScreen = ({ navigation }) => {
             </Pressable>
           </View>
         </View>
-      </Modal> */}
+      </Modal> 
     </View>
   );
 };
