@@ -3,10 +3,35 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 
 const StudentOrFacultyScreen = ({ navigation }) => {
   const [selectedTab, setSelectedTab] = useState('Student'); // Always set to 'Student'
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleProceed = () => {
-    // Navigate to Home Drawer screen (assuming it's called "HomeDrawer")
-    navigation.navigate('HomeDrawer');
+  const handleProceed = async () => {
+    // Make API call to save the user data (username and password)
+    try {
+      const response = await fetch('http://192.168.1.5:5000/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        // Navigate to HomeDrawer screen on success
+        navigation.navigate('HomeDrawer');
+      } else {
+        // Show error message if username already exists or any other error
+        alert(result.message || 'Something went wrong');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to save user data');
+    }
   };
 
   return (
@@ -30,14 +55,35 @@ const StudentOrFacultyScreen = ({ navigation }) => {
         {selectedTab === 'Student' ? (
           <>
             <Text style={styles.label}>Enter Roll Number</Text>
-            <TextInput style={styles.input} placeholder="Roll Number" keyboardType="numeric" />
+            <TextInput
+              style={styles.input}
+              placeholder="Roll Number"
+              keyboardType="numeric"
+              value={username}
+              onChangeText={setUsername}
+            />
           </>
         ) : (
           <>
             <Text style={styles.label}>Enter Email</Text>
-            <TextInput style={styles.input} placeholder="Faculty Email" keyboardType="email-address" />
+            <TextInput
+              style={styles.input}
+              placeholder="Faculty Email"
+              keyboardType="email-address"
+              value={username}
+              onChangeText={setUsername}
+            />
           </>
         )}
+
+        <Text style={styles.label}>Enter Password</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
 
         {/* Proceed Button */}
         <TouchableOpacity style={styles.proceedButton} onPress={handleProceed}>
