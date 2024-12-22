@@ -44,8 +44,9 @@ const App = () => {
           }}
         >
           {/* Drawer Screens */}
-          <Drawer.Screen name="HomeDrawer" component={DrawerNavigation} options={{ headerShown: false }} />
           <Drawer.Screen name="Login" component={LoginScreen} />
+          <Drawer.Screen name="HomeDrawer" component={DrawerNavigation} options={{ headerShown: false }} />
+        
           <Drawer.Screen name="StudentOrFacultyScreen" component={StudentOrFacultyScreen} />
           <Drawer.Screen name="ParentOrVisitorScreen" component={ParentOrVisitorScreen} />
           <Drawer.Screen name="CampusMap" component={CampusMapScreen} options={{ title: 'Campus Map' }} />
