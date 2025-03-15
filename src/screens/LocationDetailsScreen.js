@@ -180,13 +180,13 @@ const LocationDetailsScreen = ({ route }) => {
   return (
     <View style={styles.container}>
       {/* Display the location image */}
-      {location.image && (
-        <Image 
-          source={location.image}
+      {location.image ? (
+        <Image
+          source={{ uri: location.image }}
           style={styles.locationImage}
         />
       ) : (
-        <Text style={styles.errorText}></Text>
+        <Text style={styles.errorText}>Image not available</Text> // Add text content inside the Text component
       )}
       <Text style={styles.title}>{location.name}</Text>
       <Text style={styles.details}>Description: {location.description}</Text>

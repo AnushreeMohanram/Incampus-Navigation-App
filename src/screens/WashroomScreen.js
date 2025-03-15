@@ -17,7 +17,9 @@ const WashroomScreen = ({ navigation }) => {
         style={[styles.side, styles.leftSide]}
         onPress={() => navigation.navigate('FemaleWashroom')}
       >
-        <Icon name="venus" size={50} color="white" /> {/* Female Icon */}
+        <Text>
+          <Icon name="venus" size={50} color="white" /> {/* Female Icon */}
+        </Text>
         <Text style={styles.label}>Women</Text> {/* Women Label */}
       </TouchableOpacity>
 
@@ -26,7 +28,9 @@ const WashroomScreen = ({ navigation }) => {
         style={[styles.side, styles.rightSide]}
         onPress={() => navigation.navigate('MaleWashroom')}
       >
-        <Icon name="mars" size={50} color="white" /> {/* Male Icon */}
+        <Text>
+          <Icon name="mars" size={50} color="white" /> {/* Male Icon */}
+        </Text>
         <Text style={styles.label}>Men</Text> {/* Men Label */}
       </TouchableOpacity>
 

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, PermissionsAndroid, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import MapView, { Marker } from 'react-native-maps';
+import Geolocation from 'react-native-geolocation-service';
 
 const Favorites = ({ navigation }) => {
   const [places, setPlaces] = useState([
@@ -8,6 +10,48 @@ const Favorites = ({ navigation }) => {
     { id: '2', name: 'Main Building', isFavorite: true, latitude: 9.882909, longitude: 78.082512 },
     { id: '3', name: 'Cafeteria', isFavorite: false, latitude: 9.883112, longitude: 78.083412 },
   ]);
+  const [currentLocation, setCurrentLocation] = useState(null);
+
+  useEffect(() => {
+    const requestLocationPermission = async () => {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message: 'This app needs access to your location',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.error('Location permission denied');
+          return;
+        }
+      }
+      if (Geolocation) {
+        Geolocation.getCurrentPosition(
+          (position) => {
+            setCurrentLocation({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            });
+          },
+          (error) => {
+            console.error(error);
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+      } else {
+        console.error('Geolocation is not available');
+      }
+    };
+
+    requestLocationPermission();
+  }, []);
 
   const toggleFavorite = (id) => {
     setPlaces((prev) =>
@@ -17,9 +61,28 @@ const Favorites = ({ navigation }) => {
     );
   };
 
+  const addFrequentlyVisitedPlace = (name, latitude, longitude) => {
+    setPlaces((prev) => [
+      ...prev,
+      { id: (prev.length + 1).toString(), name, isFavorite: false, latitude, longitude },
+    ]);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Favorites</Text>
+      {currentLocation && (
+        <MapView style={styles.map} region={currentLocation}>
+          {places.map((place) => (
+            <Marker
+              key={place.id}
+              coordinate={{ latitude: place.latitude, longitude: place.longitude }}
+              title={place.name}
+              pinColor={place.isFavorite ? 'gold' : 'red'}
+            />
+          ))}
+        </MapView>
+      )}
       <FlatList
         data={places}
         keyExtractor={(item) => item.id}
@@ -42,6 +105,7 @@ const Favorites = ({ navigation }) => {
                     longitude: item.longitude,
                   },
                   markerColor: 'red', // Red marker for selected location
+                  placeName: item.name, // Pass the place name to show the drop icon
                 })
               }
             >
@@ -62,6 +126,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  map: {
+    width: '100%',
+    height: 200,
     marginBottom: 10,
   },
   listItem: {

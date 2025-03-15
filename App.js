@@ -11,7 +11,9 @@ import StudentOrFacultyScreen from './src/screens/StudentOrFacultyScreen';
 import ParentOrVisitorScreen from './src/screens/ParentOrVisitorScreen';
 import CampusMapScreen from './src/screens/CampusMapScreen';
 import LocationDetailsScreen from './src/screens/LocationDetailsScreen';
-import LocationNotifications from './src/screens/LocationNotifications'; // Import as required
+import DrinkingStation from './src/screens/DrinkingStation'; // Import the DrinkingStation screen
+import MaleWashroomScreen from './src/screens/MaleWashroomScreen';
+import FemaleWashroomScreen from './src/screens/FemaleWashroomScreen';
 
 const Stack = createStackNavigator();
 
@@ -19,24 +21,15 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        {/* Login Screen */}
         <Stack.Screen name="Login" component={LoginScreen} />
-        
-        {/* Choose Student or Faculty / Parent or Visitor */}
         <Stack.Screen name="StudentOrFacultyScreen" component={StudentOrFacultyScreen} />
         <Stack.Screen name="ParentOrVisitorScreen" component={ParentOrVisitorScreen} />
-
-        {/* Home Drawer Navigation */}
-        <Stack.Screen 
-          name="HomeDrawer" 
-          component={DrawerNavigation} 
-          options={{ headerShown: false }} // Hide header for drawer
-        />
-
-        {/* Other Stack Screens */}
+        <Stack.Screen name="HomeDrawer" component={DrawerNavigation} options={{ headerShown: false }} />
         <Stack.Screen name="CampusMap" component={CampusMapScreen} options={{ title: 'Campus Map' }} />
         <Stack.Screen name="LocationDetails" component={LocationDetailsScreen} options={{ title: 'Location Details' }} />
-        <Stack.Screen name="LocationNotifications" component={LocationNotifications} options={{ title: 'Location Notifications' }} />
+        <Stack.Screen name="DrinkingStation" component={DrinkingStation} options={{ title: 'Drinking Station' }} />
+        <Stack.Screen name="MaleWashroom" component={MaleWashroomScreen} options={{ title: 'Male Washroom' }} />
+        <Stack.Screen name="FemaleWashroom" component={FemaleWashroomScreen} options={{ title: 'Female Washroom' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

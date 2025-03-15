@@ -9,7 +9,7 @@ const Feedback = () => {
     setRating(rate); // Set selected rating
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!rating || comment.trim() === '') {
       Alert.alert('Error', 'Please provide both a rating and a comment.');
     } else {
@@ -17,6 +17,25 @@ const Feedback = () => {
       Alert.alert('Feedback Submitted', `Rating: ${rating}\nComment: ${comment}`);
       setRating(0); // Reset rating
       setComment(''); // Clear comment
+
+      // Send feedback to the server
+      try {
+        const response = await fetch('http://192.168.120.200:3000/submit-feedback', { // Replace <YOUR_IP_ADDRESS> with your development machine's IP address
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ rating, comment }),
+        });
+
+        if (response.ok) {
+          console.log('Feedback submitted successfully');
+        } else {
+          console.error('Error submitting feedback');
+        }
+      } catch (error) {
+        console.error('Error submitting feedback', error);
+      }
     }
   };
 

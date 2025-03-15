@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, FlatList, Text, TouchableOpacity, Keyboard } from 'react-native';
+import { View, TextInput, StyleSheet, FlatList, Text, TouchableOpacity, Keyboard, Image } from 'react-native'; // Ensure Image is imported
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import * as Location from 'expo-location';
 
+// Define the dropIcon variable
+// const dropIcon = require('../../assets/dropIcon.png'); // Ensure the path is correct
 
 const getDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
   const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+  const Δλ = ((lon1 - lon1) * Math.PI) / 180;
 
   const a =
     Math.sin(Δφ / 2) ** 2 +
@@ -30,16 +32,23 @@ const CampusMapScreen = () => {
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [isSearchPerformed, setIsSearchPerformed] = useState(false);
 
-
   // Reset searchText when screen is focused
   useFocusEffect(
     React.useCallback(() => {
       setSearchText(''); // Reset the search bar text when navigating back
+      getLocation(); // Fetch the current location when the screen is focused
     }, [])
   );
 
   // Destructure the params, with fallback values
-  const { searchQuery = '', filterType = '', departmentName, latitude, longitude } = route.params || {};
+  const { searchQuery = '', filterType = '', departmentName, latitude, longitude, placeName } = route.params || {};
+
+  // Set the search bar text to placeName if provided
+  useEffect(() => {
+    if (placeName) {
+      setSearchText(placeName);
+    }
+  }, [placeName]);
 
   const campusLocations = [
     { id: 1, name: 'Main Building', latitude: 9.882909, longitude: 78.082512, type: 'departments' },
@@ -61,7 +70,6 @@ const CampusMapScreen = () => {
     { id: 17, name: 'Food Court', latitude: 9.883353, longitude: 78.083247, type: 'drinking_station' },
     { id: 18, name: 'CSE Department', latitude: 9.882886, longitude: 78.083664, type: 'drinking_station' },
     { id: 19, name: 'Civil Department', latitude: 9.882239492713243, longitude: 78.0832000805217, type: 'drinking_station' },
-
   ];
 
   useEffect(() => {
@@ -73,17 +81,17 @@ const CampusMapScreen = () => {
     }
   }, [filterType]);
 
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.error('Permission to access location was denied');
+      return;
+    }
+    let location = await Location.getCurrentPositionAsync({});
+    setLocation(location);
+  };
 
   useEffect(() => {
-    const getLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    };
     getLocation();
   }, []);
 
@@ -153,7 +161,7 @@ const CampusMapScreen = () => {
         mapType="satellite"
       >
 
-          {/* User's Current Location */}
+        {/* User's Current Location */}
         {location && (
           <Marker
             coordinate={{
@@ -166,8 +174,8 @@ const CampusMapScreen = () => {
           />
         )}
 
-          {/* Only show filtered locations if filter is applied and search is not performed */}
-          {isSearchPerformed && filteredLocations.length > 0 && filteredLocations.map((marker) => (
+        {/* Only show filtered locations if filter is applied and search is not performed */}
+        {isSearchPerformed && filteredLocations.length > 0 && filteredLocations.map((marker) => (
           <Marker
             key={marker.id}
             coordinate={{
@@ -177,16 +185,13 @@ const CampusMapScreen = () => {
             pinColor={marker.type === 'facilities' ? 'pink' : 'blue'}
             onPress={() => handleMarkerPress(marker)}
           >
-            {marker.type === 'drinking_station' ? (
-              <Image source={dropIcon} style={styles.dropIcon} />
-            ) : null}
             <Callout onPress={() => handleMarkerPress(marker)}>
               <Text>{marker.name}</Text>
             </Callout>
           </Marker>
         ))}
 
-                {/* Show the specific department location */}
+        {/* Show the specific department location */}
         {departmentName && latitude && longitude && (
           <Marker coordinate={{ latitude, longitude }} title={departmentName}>
             <Callout>
@@ -195,8 +200,7 @@ const CampusMapScreen = () => {
           </Marker>
         )}
 
-
- {/* Show searched location with red marker after search */}
+        {/* Show searched location with red marker after search */}
         {isSearchPerformed && searchedLocation && (
           <Marker
             coordinate={{
